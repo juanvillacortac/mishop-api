@@ -1,0 +1,12 @@
+{
+  "routes": [
+    {
+      "src": "/playground",
+      "dest": "api/index.ts"
+    },
+    {
+      "src": "/graphql",
+      "dest": "api/index.ts"
+    }
+  ]
+}

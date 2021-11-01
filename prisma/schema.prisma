@@ -1,0 +1,196 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("VITE_DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  SHOP
+}
+
+model User {
+  id    Int    @id @default(autoincrement())
+  email String @unique
+  name  String
+
+  account Account?
+  shop    ShopAccount?
+
+  createdAt DateTime @default(now())
+
+  role Role @default(USER)
+
+  @@map("user")
+}
+
+model Account {
+  id     Int     @id @default(autoincrement())
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int     @unique
+  hash   String?
+
+  @@map("account")
+}
+
+model ShopAccount {
+  id Int @id @default(autoincrement())
+
+  name String
+  slug String @unique
+
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  @unique
+
+  products Product[]
+  orders   Order[]   @relation("products_orders")
+
+  paymentMethods  PaymentMethodType[]
+  deliveryMethods DeliveryMethod[]    @relation("delivery_methods")
+
+  logo   ImageAttachment? @relation(fields: [logoId], references: [id], onDelete: Cascade, name: "shop_logo")
+  logoId Int?             @unique
+
+  instagram   String  @unique
+  tiktok      String?
+  facebook    String?
+  hasWhatsapp Boolean @default(false)
+  phoneNumber String
+
+  @@map("shop_account")
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String
+  products Product[] @relation(references: [id], name: "category_to_product")
+
+  createdAt DateTime @default(now())
+
+  @@map("category")
+}
+
+model ImageAttachment {
+  id Int @id @default(autoincrement())
+
+  original  String @unique
+  normal    String @unique
+  thumbnail String @unique
+
+  shop ShopAccount? @relation("shop_logo")
+
+  product   Product? @relation(references: [id], fields: [productId], onDelete: Cascade, name: "product_image")
+  productId Int
+
+  @@map("image_attachment")
+}
+
+model Product {
+  id Int @id @default(autoincrement())
+
+  shop   ShopAccount @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  shopId Int
+
+  images ImageAttachment[] @relation("product_image")
+
+  name       String
+  categories Category[] @relation("category_to_product")
+
+  hasVariants Boolean
+  variants    Json[]
+
+  price            Decimal
+  promotionalPrice Decimal
+
+  stock Int
+  min   Int
+
+  orderProducts OrderItem[]
+
+  createdAt DateTime @default(now())
+
+  @@map("product")
+}
+
+enum PaymentMethodType {
+  PAYPAL
+  PAGOMOVIL
+  ZELLE
+  FIAT
+}
+
+enum OrderStatus {
+  PROCESS
+  PAYED
+  CONFIRMED
+}
+
+model Customer {
+  id Int @id @default(autoincrement())
+
+  name        String
+  lastName    String
+  instagram   String @unique
+  email       String @unique
+  phoneNumber String
+
+  orders Order[]
+
+  @@map("customer")
+}
+
+model DeliveryMethod {
+  id     Int         @id @default(autoincrement())
+  shop   ShopAccount @relation(fields: [shopId], references: [id], onDelete: Cascade, name: "delivery_methods")
+  shopId Int
+  name   String
+  price  Decimal
+  orders Order[]
+
+  @@map("delivery_method")
+}
+
+model Order {
+  id Int @id @default(autoincrement())
+
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId Int
+
+  shop   ShopAccount @relation(fields: [shopId], references: [id], onDelete: Cascade, name: "products_orders")
+  shopId Int
+
+  deliveryMethod   DeliveryMethod @relation(fields: [deliveryMethodId], references: [id])
+  deliveryMethodId Int
+
+  paymentMethod PaymentMethodType
+  paymentData   Json
+
+  total Decimal
+
+  products OrderItem[]
+
+  status OrderStatus
+
+  @@map("order")
+}
+
+model OrderItem {
+  id    Int     @id @default(autoincrement())
+  price Decimal
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+
+  quantity Int
+
+  order   Order @relation(fields: [orderId], references: [id])
+  orderId Int
+
+  @@map("order_item")
+}
