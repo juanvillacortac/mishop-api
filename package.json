@@ -10,7 +10,7 @@
     "generate:prisma": "prisma generate",
     "generate:nexus": "ts-node --transpile-only lib/schema",
     "heroku-postbuild": "npx prisma migrate deploy",
-    "start": "vite serve -m production",
+    "start": "vite serve -m production --host",
     "vercel-build": "npm -s run generate:nexus"
   },
   "engines": {
