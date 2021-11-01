@@ -9,8 +9,12 @@
     "generate": "npm -s run generate:prisma && npm -s run generate:nexus",
     "generate:prisma": "prisma generate",
     "generate:nexus": "ts-node --transpile-only lib/schema",
-    "start": "prisma generate && prisma migrate deploy && vite serve -m production",
+    "heroku-postbuild": "npx prisma migrate deploy",
+    "start": "vite serve -m production",
     "vercel-build": "npm -s run generate:nexus"
+  },
+  "engines": {
+    "node": "14.x"
   },
   "author": "",
   "license": "ISC",
