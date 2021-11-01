@@ -6,12 +6,12 @@ import path from 'path'
 export const schema = makeSchema({
   types,
   outputs: {
-    schema: path.join(import.meta.url, '../../schema.graphql').substring(6),
-    typegen: path.join(import.meta.url, '../generated/nexus.d.ts').substring(6),
+    schema: path.join(import.meta.url, '../../schema.graphql').substring(5),
+    typegen: path.join(import.meta.url, '../generated/nexus.d.ts').substring(5),
   },
   contextType: {
     export: 'Context',
-    module: path.join(import.meta.url, '../context.ts').substring(6),
+    module: path.join(import.meta.url, '../context.ts').substring(5),
   },
   sourceTypes: {
     modules: [
