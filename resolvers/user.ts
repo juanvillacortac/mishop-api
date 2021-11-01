@@ -98,7 +98,7 @@ export const updateUser = async (args: updateUserArgs, ctx: Context) => {
       data: {
         name: args.data.name || undefined,
         email: args.data.email || undefined,
-        shop: {
+        shop: args.data.shop ? {
           update: {
             instagram: args.data.shop.instagram || undefined,
             facebook: args.data.shop.facebook || undefined,
@@ -116,7 +116,7 @@ export const updateUser = async (args: updateUserArgs, ctx: Context) => {
               },
             } : undefined,
           }
-        },
+        } : undefined,
         account: args.data.password ? {
           update: {
             hash: await hash(args.data.password, 10)
