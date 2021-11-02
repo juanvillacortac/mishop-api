@@ -1,4 +1,3 @@
-import { getUserFromJWT } from '@/lib/utils'
 import { Prisma } from '@prisma/client'
 import { compare, hash } from 'bcrypt'
 import { sign } from 'jsonwebtoken'
@@ -71,7 +70,12 @@ export const loginUser = async (args: MutationArgs['loginUser'], ctx: Context) =
   })
   if (account && await compare(args.data.password, account.hash)) {
     return {
-      token: sign(account.user, import.meta.env.VITE_JWT_SECRET),
+      token: sign({
+        scope: 'user',
+        user: account.user
+      }, import.meta.env.VITE_JWT_SECRET, {
+        expiresIn: '7d'
+      }),
       user: account.user
     }
   } else {
@@ -81,7 +85,7 @@ export const loginUser = async (args: MutationArgs['loginUser'], ctx: Context) =
 
 export const updateUser = async (args: MutationArgs['updateUser'], ctx: Context) => {
   try {
-    const payload = await getUserFromJWT(ctx)
+    const payload = ctx.user
     const user = await ctx.prisma.user.update({
       where: {
         email: payload.email,

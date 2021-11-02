@@ -9,7 +9,7 @@ const __dirname = fileURLToPath(dirname(import.meta.url));
 export const schema = makeSchema({
   types,
   outputs: {
-    schema: path.join(__dirname, '../schema.graphql'),
+    schema: false,
     typegen: path.join(__dirname, 'generated/nexus.d.ts'),
   },
   contextType: {

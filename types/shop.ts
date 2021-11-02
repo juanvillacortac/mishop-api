@@ -44,7 +44,7 @@ export const ShopUpdateInput = inputObjectType({
 
 export const ShopFromTokenQuery = queryField('getShopFromToken', {
   type: ShopAccount,
-  resolve: async (_parent, _args, ctx) => (await getUserFromJWT(ctx)).shop,
+  resolve: async (_parent, _args, ctx) => ctx.getUser().shop,
 })
 
 export const ShopQuery = queryField('getShop', {

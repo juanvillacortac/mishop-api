@@ -1,4 +1,3 @@
-import { getUserFromJWT } from '@/lib/utils'
 import { Context } from '@/lib/context'
 import { NexusGenArgTypes } from '@/lib/generated/nexus'
 import { DeliveryMethod as DMethod } from '@prisma/client'
@@ -9,7 +8,7 @@ type MutationArgs = NexusGenArgTypes['Mutation']
 export const getDeliveryMethods = async (args: QueryArgs['getDeliveryMethods'], ctx: Context) => {
   let shopId: number
   if (!args.shopSlug) {
-    shopId = (await getUserFromJWT(ctx)).shop.id
+    shopId = ctx.user?.shop?.id
   }
   return await ctx.prisma.deliveryMethod.findMany({
     where: {
@@ -31,7 +30,7 @@ export const getDeliveryMethod = (args: QueryArgs['getDeliveryMethods'], ctx: Co
 })
 
 export const upsertDeliveryMethods = async (args: MutationArgs['upsertDeliveryMethods'], ctx: Context) => {
-  const shop = (await getUserFromJWT(ctx)).shop
+  const shop = ctx.getUser().shop
 
   const data = args.data.filter(d => Object.keys(d).length)
 
@@ -68,14 +67,7 @@ export const upsertDeliveryMethods = async (args: MutationArgs['upsertDeliveryMe
             where: {
               id: d.id,
             },
-            data: {
-              id: d.id,
-              active: d.active ?? undefined,
-              name: d.name ?? undefined,
-              price: d.price ?? undefined,
-              requestDirection: d.requestDirection ?? undefined,
-              admitCash: d.admitCash ?? undefined,
-            },
+            data: { ...d },
           }
         }
       }

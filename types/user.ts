@@ -1,5 +1,4 @@
 import { arg, inputObjectType, mutationField, nonNull, objectType, queryField } from 'nexus'
-import { getUserFromJWT } from '../lib/utils'
 import { loginUser, registerUser, updateUser } from '../resolvers/user'
 import { ShopAccount, ShopUpdateInput } from './shop'
 
@@ -55,7 +54,7 @@ export const UserUpdateInput = inputObjectType({
 
 export const UserFromTokenQuery = queryField('getUserFromToken', {
   type: User,
-  resolve: (_parent, _args, ctx) => getUserFromJWT(ctx),
+  resolve: (_parent, _args, ctx) => ctx.getUser(),
 })
 
 export const UserRegisterMutation = mutationField('registerUser', {
