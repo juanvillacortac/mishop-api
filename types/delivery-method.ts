@@ -85,7 +85,11 @@ export const UpsertDeliveryMethodsMutation = mutationField('upsertDeliveryMethod
         data: {
           name: d.name || '',
           price: d.price || 0,
-          shopId: shop.id,
+          shop: {
+            connect: {
+              userId: shop.id,
+            }
+          },
         }
       })))
     }
@@ -104,7 +108,14 @@ export const UpsertDeliveryMethodsMutation = mutationField('upsertDeliveryMethod
               where: {
                 id: d.id,
               },
-              data: { ...d },
+              data: {
+                id: d.id,
+                active: d.active ?? undefined,
+                name: d.name ?? undefined,
+                price: d.price ?? undefined,
+                requestDirection: d.requestDirection ?? undefined,
+                admitCash: d.admitCash ?? undefined,
+              },
             }
           }
         }
