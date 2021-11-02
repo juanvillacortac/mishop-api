@@ -34,16 +34,23 @@ export const DeliveryMethodsQuery = queryField('getDeliveryMethods', {
     shopSlug: stringArg({ description: 'Shop slug' }),
     active: booleanArg({ description: 'If is not defined, active and inactive are listed' }),
   },
-  resolve: async (_parent, args, ctx) => ctx.prisma.deliveryMethod.findMany({
-    where: {
-      id: args.id ?? undefined,
-      active: args.active ?? undefined,
-      shop: {
-        id: args.shopId ?? undefined,
-        slug: args.shopSlug ?? undefined,
-      }
-    },
-  })
+  resolve: async (_parent, args, ctx) => {
+    let shopId: number
+    if (!args.shopSlug) {
+      shopId = (await getUserFromJWT(ctx)).shop.id
+    }
+    return await ctx.prisma.deliveryMethod.findMany({
+      where: {
+        id: args.id ?? undefined,
+        active: args.active ?? undefined,
+        shopId,
+        shop: {
+          id: args.shopId ?? undefined,
+          slug: args.shopSlug ?? undefined,
+        }
+      },
+    })
+  }
 })
 
 export const DeliveryMethodQuery = queryField('getDeliveryMethod', {
