@@ -5,11 +5,9 @@ import { sign } from 'jsonwebtoken'
 import { Context } from '@/lib/context'
 import { NexusGenArgTypes } from '@/lib/generated/nexus'
 
-type registerUserArgs = NexusGenArgTypes['Mutation']['registerUser']
-type loginUserArgs = NexusGenArgTypes['Mutation']['loginUser']
-type updateUserArgs = NexusGenArgTypes['Mutation']['updateUser']
+type MutationArgs = NexusGenArgTypes['Mutation']
 
-export const registerUser = async (args: registerUserArgs, ctx: Context) => {
+export const registerUser = async (args: MutationArgs['registerUser'], ctx: Context) => {
   try {
     const user = await ctx.prisma.user.create({
       data: {
@@ -54,7 +52,7 @@ export const registerUser = async (args: registerUserArgs, ctx: Context) => {
   }
 }
 
-export const loginUser = async (args: loginUserArgs, ctx: Context) => {
+export const loginUser = async (args: MutationArgs['loginUser'], ctx: Context) => {
   const account = await ctx.prisma.account.findFirst({
     where: {
       user: {
@@ -81,7 +79,7 @@ export const loginUser = async (args: loginUserArgs, ctx: Context) => {
   }
 }
 
-export const updateUser = async (args: updateUserArgs, ctx: Context) => {
+export const updateUser = async (args: MutationArgs['updateUser'], ctx: Context) => {
   try {
     const payload = await getUserFromJWT(ctx)
     const user = await ctx.prisma.user.update({
