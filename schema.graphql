@@ -7,6 +7,24 @@ A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `dat
 """
 scalar DateTime
 
+type DeliveryMethod {
+  active: Boolean!
+  admitCash: Boolean!
+  id: Int!
+  name: NonEmptyString!
+  price: Float!
+  requestDirection: Boolean!
+}
+
+input DeliveryMethodInput {
+  active: Boolean
+  admitCash: Boolean
+  id: Int
+  name: NonEmptyString
+  price: Float
+  requestDirection: Boolean
+}
+
 """
 A field whose value conforms to the standard internet email address format as specified in RFC822: https://www.w3.org/Protocols/rfc822/.
 """
@@ -35,7 +53,11 @@ type Mutation {
   registerUser(data: UserRegisterInput!): UserTokenPayload
   updateShop(data: ShopUpdateInput!): ShopAccount
   updateUser(data: UserUpdateInput!): User
+  upsertDeliveryMethods(data: [DeliveryMethodInput]!): [DeliveryMethod]
 }
+
+"""A string that cannot be passed as an empty value"""
+scalar NonEmptyString
 
 enum PaymentMethodEnum {
   FIAT
@@ -50,57 +72,71 @@ A field whose value conforms to the standard E.164 format as specified in: https
 scalar PhoneNumber
 
 type Query {
+  getDeliveryMethod(id: Int!): DeliveryMethod
+  getDeliveryMethods(
+    """If is not defined, active and inactive are listed"""
+    active: Boolean
+
+    """Delivery method id"""
+    id: Int
+
+    """Shop id"""
+    shopId: Int
+
+    """Shop slug"""
+    shopSlug: String
+  ): [DeliveryMethod]
   getShop(id: Int, slug: String): ShopAccount
   getShopFromToken: ShopAccount
   getUserFromToken: User
 }
 
 type ShopAccount {
-  facebook: String
+  facebook: NonEmptyString
   hasWhatsapp: Boolean!
   id: Int!
-  instagram: String!
+  instagram: NonEmptyString!
   logo: ImageAttachment
-  name: String!
+  name: NonEmptyString!
   paymentMethods: [PaymentMethodEnum]
   phoneNumber: PhoneNumber!
-  slug: String!
-  tiktok: String
+  slug: NonEmptyString!
+  tiktok: NonEmptyString
 }
 
 input ShopUpdateInput {
-  facebook: String
+  facebook: NonEmptyString
   hasWhatsapp: Boolean
-  instagram: String
+  instagram: NonEmptyString
   logo: ImageAttachmentInput
-  name: String
+  name: NonEmptyString
   paymentMethods: [PaymentMethodEnum]
   phoneNumber: PhoneNumber
-  slug: String
-  tiktok: String
+  slug: NonEmptyString
+  tiktok: NonEmptyString
 }
 
 type User {
   createdAt: DateTime
   email: EmailAddress!
   id: Int!
-  name: String!
+  name: NonEmptyString!
   shop: ShopAccount!
 }
 
 input UserLoginInput {
   email: EmailAddress!
-  password: String!
+  password: NonEmptyString!
 }
 
 input UserRegisterInput {
   email: EmailAddress!
-  instagram: String!
-  name: String!
-  password: String!
+  instagram: NonEmptyString!
+  name: NonEmptyString!
+  password: NonEmptyString!
   phoneNumber: PhoneNumber!
-  shopName: String!
-  shopSlug: String!
+  shopName: NonEmptyString!
+  shopSlug: NonEmptyString!
 }
 
 type UserTokenPayload {
@@ -110,7 +146,7 @@ type UserTokenPayload {
 
 input UserUpdateInput {
   email: EmailAddress
-  name: String
-  password: String
+  name: NonEmptyString
+  password: NonEmptyString
   shop: ShopUpdateInput
 }

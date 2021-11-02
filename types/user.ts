@@ -8,7 +8,7 @@ export const User = objectType({
   definition(t) {
     t.nonNull.int('id')
     t.nonNull.email('email')
-    t.nonNull.string('name')
+    t.nonNull.nonEmptyString('name')
     t.nonNull.field('shop', { type: ShopAccount })
     t.date('createdAt')
   },
@@ -26,12 +26,12 @@ export const UserRegisterInput = inputObjectType({
   name: 'UserRegisterInput',
   definition(t) {
     t.nonNull.email('email')
-    t.nonNull.string('instagram')
+    t.nonNull.nonEmptyString('instagram')
     t.nonNull.phoneNumber('phoneNumber')
-    t.nonNull.string('password')
-    t.nonNull.string('name')
-    t.nonNull.string('shopName')
-    t.nonNull.string('shopSlug')
+    t.nonNull.nonEmptyString('password')
+    t.nonNull.nonEmptyString('name')
+    t.nonNull.nonEmptyString('shopName')
+    t.nonNull.nonEmptyString('shopSlug')
   },
 })
 
@@ -39,7 +39,7 @@ export const UserLoginInput = inputObjectType({
   name: 'UserLoginInput',
   definition(t) {
     t.nonNull.email('email')
-    t.nonNull.string('password')
+    t.nonNull.nonEmptyString('password')
   },
 })
 
@@ -47,8 +47,8 @@ export const UserUpdateInput = inputObjectType({
   name: 'UserUpdateInput',
   definition(t) {
     t.email('email')
-    t.string('name')
-    t.string('password')
+    t.nonEmptyString('name')
+    t.nonEmptyString('password')
     t.field('shop', { type: ShopUpdateInput })
   },
 })

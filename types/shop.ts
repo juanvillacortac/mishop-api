@@ -7,12 +7,12 @@ export const ShopAccount = objectType({
   name: 'ShopAccount',
   definition(t) {
     t.nonNull.int('id')
-    t.nonNull.string('name')
-    t.nonNull.string('slug')
+    t.nonNull.nonEmptyString('name')
+    t.nonNull.nonEmptyString('slug')
 
-    t.nonNull.string('instagram')
-    t.string('tiktok')
-    t.string('facebook')
+    t.nonNull.nonEmptyString('instagram')
+    t.nonEmptyString('tiktok')
+    t.nonEmptyString('facebook')
 
     t.nonNull.phoneNumber('phoneNumber')
 
@@ -26,12 +26,12 @@ export const ShopAccount = objectType({
 export const ShopUpdateInput = inputObjectType({
   name: 'ShopUpdateInput',
   definition(t) {
-    t.string('name')
+    t.nonEmptyString('name')
 
-    t.string('instagram')
-    t.string('tiktok')
-    t.string('facebook')
-    t.string('slug')
+    t.nonEmptyString('instagram')
+    t.nonEmptyString('tiktok')
+    t.nonEmptyString('facebook')
+    t.nonEmptyString('slug')
 
     t.phoneNumber('phoneNumber')
 

@@ -7,7 +7,8 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["interactiveTransactions"]
 }
 
 enum Role {
@@ -105,8 +106,8 @@ model Product {
   hasVariants Boolean
   variants    Json[]
 
-  price            Decimal
-  promotionalPrice Decimal
+  price            Float
+  promotionalPrice Float
 
   stock Int
   min   Int
@@ -146,12 +147,15 @@ model Customer {
 }
 
 model DeliveryMethod {
-  id     Int         @id @default(autoincrement())
-  shop   ShopAccount @relation(fields: [shopId], references: [id], onDelete: Cascade, name: "delivery_methods")
-  shopId Int
-  name   String
-  price  Decimal
-  orders Order[]
+  id               Int         @id @default(autoincrement())
+  shop             ShopAccount @relation(fields: [shopId], references: [id], onDelete: Cascade, name: "delivery_methods")
+  shopId           Int
+  name             String
+  price            Float
+  active           Boolean     @default(true)
+  admitCash        Boolean     @default(false)
+  requestDirection Boolean     @default(false)
+  orders           Order[]
 
   @@map("delivery_method")
 }
@@ -171,7 +175,7 @@ model Order {
   paymentMethod PaymentMethodType
   paymentData   Json
 
-  total Decimal
+  total Float
 
   products OrderItem[]
 
@@ -181,8 +185,8 @@ model Order {
 }
 
 model OrderItem {
-  id    Int     @id @default(autoincrement())
-  price Decimal
+  id    Int   @id @default(autoincrement())
+  price Float
 
   product   Product @relation(fields: [productId], references: [id])
   productId Int
