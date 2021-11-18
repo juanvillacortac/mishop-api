@@ -7,6 +7,7 @@ specifiers:
   '@types/jsonwebtoken': ^8.5.5
   '@types/node': ^16.10.3
   bcrypt: ^5.0.1
+  cors: ^2.8.5
   cross-env: ^7.0.3
   express: ^4.17.1
   express-graphql: ^0.12.0
@@ -25,6 +26,7 @@ specifiers:
 dependencies:
   '@prisma/client': 3.1.1_prisma@3.1.1
   bcrypt: 5.0.1
+  cors: 2.8.5
   express: 4.17.1
   express-graphql: 0.12.0_graphql@15.6.1
   graphql: 15.6.1
@@ -524,6 +526,14 @@ packages:
 
   /core-util-is/1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
+    dev: false
+
+  /cors/2.8.5:
+    resolution: {integrity: sha512-KIHbLJqu73RGr/hnbrO9uBeixNGuvSQjul/jdFvS/KFSIH1hWVd1ng7zOHx+YrEfInLG7q4n6GHQ9cDtxv/P6g==}
+    engines: {node: '>= 0.10'}
+    dependencies:
+      object-assign: 4.1.1
+      vary: 1.1.2
     dev: false
 
   /create-require/1.1.1:
