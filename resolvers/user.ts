@@ -36,7 +36,12 @@ export const registerUser = async (args: MutationArgs['registerUser'], ctx: Cont
       }
     })
     return {
-      token: sign(user, import.meta.env.VITE_JWT_SECRET),
+      token: sign({
+        scope: 'user',
+        user
+      }, import.meta.env.VITE_JWT_SECRET, {
+        expiresIn: '7d'
+      }),
       user,
     }
   } catch (error) {
@@ -111,10 +116,17 @@ export const updateUser = async (args: MutationArgs['updateUser'], ctx: Context)
             paymentMethods: args.data.shop.paymentMethods ? [...new Set(args.data.shop.paymentMethods)] : undefined,
             hasWhatsapp: args.data.shop.hasWhatsapp ?? undefined,
             logo: args.data.shop.logo ? {
-              update: {
-                original: args.data.shop.logo.original || '',
-                normal: args.data.shop.logo.original || undefined,
-                thumbnail: args.data.shop.logo.original || undefined,
+              upsert: {
+                create: {
+                  original: args.data.shop.logo.original || '',
+                  normal: args.data.shop.logo.normal || '',
+                  thumbnail: args.data.shop.logo.thumbnail || '',
+                },
+                update: {
+                  original: args.data.shop.logo.original || '',
+                  normal: args.data.shop.logo.normal || '',
+                  thumbnail: args.data.shop.logo.thumbnail || '',
+                }
               },
             } : undefined,
           }

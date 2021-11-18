@@ -31,6 +31,7 @@ export const getDeliveryMethod = (args: QueryArgs['getDeliveryMethods'], ctx: Co
 
 export const upsertDeliveryMethods = async (args: MutationArgs['upsertDeliveryMethods'], ctx: Context) => {
   const shop = ctx.getUser().shop
+  console.log(shop)
 
   const data = args.data.filter(d => Object.keys(d).length)
 
@@ -44,11 +45,7 @@ export const upsertDeliveryMethods = async (args: MutationArgs['upsertDeliveryMe
       data: {
         name: d.name || '',
         price: d.price || 0,
-        shop: {
-          connect: {
-            userId: shop.id,
-          }
-        },
+        shopId: shop.id,
       }
     })))
   }

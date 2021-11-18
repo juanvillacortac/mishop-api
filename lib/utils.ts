@@ -1,5 +1,15 @@
 import jwt from 'jsonwebtoken'
+import { AllNexusOutputTypeDefs, GetGen, NexusMetaType } from 'nexus/dist/core'
+import { objectType } from 'nexus/dist/core'
 import { Context } from './context'
+
+export const pageObjectType = (name: string, type: GetGen<'allOutputTypes', string> | AllNexusOutputTypeDefs | NexusMetaType) => objectType({
+  name,
+  definition(t) {
+    t.nonNull.int('total')
+    t.list.nonNull.field('items', { type })
+  }
+})
 
 export const getUserFromJWT = async (ctx: Context) => {
   const authHeader = ctx.request?.headers['authorization']
@@ -22,6 +32,7 @@ export const getUserFromJWT = async (ctx: Context) => {
       })
     )
     if (ok) {
+      console.log(result)
       if (result.user?.id && result.scope === 'user') {
         return await ctx.prisma.user.findUnique({
           where: {

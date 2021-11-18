@@ -70,6 +70,7 @@ model ShopAccount {
 model Category {
   id       Int       @id @default(autoincrement())
   name     String
+  slug     String    @unique
   products Product[] @relation(references: [id], name: "category_to_product")
 
   createdAt DateTime @default(now())
@@ -80,9 +81,9 @@ model Category {
 model ImageAttachment {
   id Int @id @default(autoincrement())
 
-  original  String @unique
-  normal    String @unique
-  thumbnail String @unique
+  original  String
+  normal    String
+  thumbnail String
 
   shop ShopAccount? @relation("shop_logo")
 

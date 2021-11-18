@@ -1,4 +1,3 @@
-import { getUserFromJWT } from '@/lib/utils'
 import { updateUser } from '@/resolvers/user'
 import { arg, inputObjectType, intArg, mutationField, nonNull, objectType, queryField, stringArg } from 'nexus'
 import { ImageAttachment, ImageAttachmentInput, PaymentMethodEnum } from './common'
