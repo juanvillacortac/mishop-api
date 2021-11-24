@@ -5,7 +5,7 @@ import { VitePluginNode } from 'vite-plugin-node'
 export default defineConfig({
   server: {
     // vite server configs, for details see [vite doc](https://vitejs.dev/config/#server-host)
-    port: +(process.env.PORT || 5000)
+    port: +(process.env.PORT || 5000),
   },
   resolve: {
     alias: [

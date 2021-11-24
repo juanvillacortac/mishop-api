@@ -6,6 +6,7 @@ export const DeliveryMethod = objectType({
   definition(t) {
     t.nonNull.int('id')
     t.nonNull.nonEmptyString('name')
+    t.string('description')
     t.nonNull.float('price')
     t.nonNull.boolean('admitCash')
     t.nonNull.boolean('requestDirection')
@@ -17,6 +18,7 @@ export const DeliveryMethodInput = inputObjectType({
   name: 'DeliveryMethodInput',
   definition(t) {
     t.int('id')
+    t.string('description')
     t.nonEmptyString('name')
     t.float('price')
     t.boolean('admitCash')

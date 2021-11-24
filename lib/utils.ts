@@ -32,11 +32,10 @@ export const getUserFromJWT = async (ctx: Context) => {
       })
     )
     if (ok) {
-      console.log(result)
       if (result.user?.id && result.scope === 'user') {
         return await ctx.prisma.user.findUnique({
           where: {
-            id: result.user.id,
+            id: String(result.user.id),
           },
           include: {
             shop: {

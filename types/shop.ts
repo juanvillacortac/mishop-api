@@ -6,17 +6,19 @@ export const ShopAccount = objectType({
   name: 'ShopAccount',
   definition(t) {
     t.nonNull.int('id')
-    t.nonNull.nonEmptyString('name')
-    t.nonNull.nonEmptyString('slug')
+    t.nonEmptyString('name')
+    t.nonEmptyString('slug')
+    t.string('description')
 
-    t.nonNull.nonEmptyString('instagram')
+    t.nonEmptyString('instagram')
     t.nonEmptyString('tiktok')
     t.nonEmptyString('facebook')
 
-    t.nonNull.phoneNumber('phoneNumber')
+    t.phoneNumber('phoneNumber')
 
-    t.nonNull.boolean('hasWhatsapp')
+    t.boolean('hasWhatsapp')
     t.list.field('paymentMethods', { type: PaymentMethodEnum })
+    t.jsonObject('paymentMethodsMetadata')
 
     t.nullable.field('logo', { type: ImageAttachment })
   },
@@ -27,6 +29,8 @@ export const ShopUpdateInput = inputObjectType({
   definition(t) {
     t.nonEmptyString('name')
 
+    t.string('description')
+
     t.nonEmptyString('instagram')
     t.nonEmptyString('tiktok')
     t.nonEmptyString('facebook')
@@ -36,6 +40,7 @@ export const ShopUpdateInput = inputObjectType({
 
     t.boolean('hasWhatsapp')
     t.list.field('paymentMethods', { type: PaymentMethodEnum })
+    t.jsonObject('paymentMethodsMetadata')
 
     t.field('logo', { type: ImageAttachmentInput })
   },

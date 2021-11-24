@@ -4,7 +4,7 @@ import {
   PhoneNumberResolver,
   EmailAddressResolver,
   NonEmptyStringResolver,
-  JSONObjectResolver
+  JSONObjectResolver,
 } from 'graphql-scalars'
 import { asNexusMethod } from 'nexus'
 

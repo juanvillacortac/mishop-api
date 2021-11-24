@@ -5,7 +5,7 @@ import { ShopAccount, ShopUpdateInput } from './shop'
 export const User = objectType({
   name: 'User',
   definition(t) {
-    t.nonNull.int('id')
+    t.nonNull.string('id')
     t.nonNull.email('email')
     t.nonNull.nonEmptyString('name')
     t.nonNull.field('shop', { type: ShopAccount })
@@ -25,12 +25,14 @@ export const UserRegisterInput = inputObjectType({
   name: 'UserRegisterInput',
   definition(t) {
     t.nonNull.email('email')
-    t.nonNull.nonEmptyString('instagram')
-    t.nonNull.phoneNumber('phoneNumber')
     t.nonNull.nonEmptyString('password')
     t.nonNull.nonEmptyString('name')
-    t.nonNull.nonEmptyString('shopName')
-    t.nonNull.nonEmptyString('shopSlug')
+    t.nonEmptyString('instagram')
+    t.nonEmptyString('shopName')
+    t.nonEmptyString('shopSlug')
+    t.string('shopDescription')
+    t.phoneNumber('phoneNumber')
+    t.boolean('hasWhatsapp')
   },
 })
 

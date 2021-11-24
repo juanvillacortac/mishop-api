@@ -8,7 +8,7 @@ type MutationArgs = NexusGenArgTypes['Mutation']
 export const getDeliveryMethods = async (args: QueryArgs['getDeliveryMethods'], ctx: Context) => {
   let shopId: number
   if (!args.shopSlug) {
-    shopId = ctx.user?.shop?.id
+    shopId = ctx.getUser()?.shop?.id
   }
   return await ctx.prisma.deliveryMethod.findMany({
     where: {
@@ -31,7 +31,6 @@ export const getDeliveryMethod = (args: QueryArgs['getDeliveryMethods'], ctx: Co
 
 export const upsertDeliveryMethods = async (args: MutationArgs['upsertDeliveryMethods'], ctx: Context) => {
   const shop = ctx.getUser().shop
-  console.log(shop)
 
   const data = args.data.filter(d => Object.keys(d).length)
 
@@ -44,6 +43,7 @@ export const upsertDeliveryMethods = async (args: MutationArgs['upsertDeliveryMe
     created = await ctx.prisma.$transaction(toCreate.map(d => ctx.prisma.deliveryMethod.create({
       data: {
         name: d.name || '',
+        description: d.description || undefined,
         price: d.price || 0,
         shopId: shop.id,
       }

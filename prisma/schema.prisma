@@ -17,7 +17,7 @@ enum Role {
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
+  id    String @id @default(cuid())
   email String @unique
   name  String
 
@@ -34,7 +34,7 @@ model User {
 model Account {
   id     Int     @id @default(autoincrement())
   user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId Int     @unique
+  userId String  @unique
   hash   String?
 
   @@map("account")
@@ -43,26 +43,29 @@ model Account {
 model ShopAccount {
   id Int @id @default(autoincrement())
 
-  name String
-  slug String @unique
+  name String?
+  slug String? @unique
 
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId Int  @unique
+  description String?
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique
 
   products Product[]
   orders   Order[]   @relation("products_orders")
 
-  paymentMethods  PaymentMethodType[]
-  deliveryMethods DeliveryMethod[]    @relation("delivery_methods")
+  paymentMethods         PaymentMethodType[]
+  deliveryMethods        DeliveryMethod[]    @relation("delivery_methods")
+  paymentMethodsMetadata Json @default("{ \"PAYPAL\": null, \"PAGOMOVIL\": null, \"ZELLE\": null, \"FIAT\": null }")
 
   logo   ImageAttachment? @relation(fields: [logoId], references: [id], onDelete: Cascade, name: "shop_logo")
   logoId Int?             @unique
 
-  instagram   String  @unique
+  instagram   String? @unique
   tiktok      String?
   facebook    String?
   hasWhatsapp Boolean @default(false)
-  phoneNumber String
+  phoneNumber String?
 
   @@map("shop_account")
 }
@@ -112,6 +115,8 @@ model Product {
 
   stock Int
   min   Int
+  
+  priority Int @default(autoincrement())
 
   orderProducts OrderItem[]
 
@@ -131,6 +136,7 @@ enum OrderStatus {
   PROCESS
   PAYED
   CONFIRMED
+  DONE
 }
 
 model Customer {
@@ -152,6 +158,7 @@ model DeliveryMethod {
   shop             ShopAccount @relation(fields: [shopId], references: [id], onDelete: Cascade, name: "delivery_methods")
   shopId           Int
   name             String
+  description      String?
   price            Float
   active           Boolean     @default(true)
   admitCash        Boolean     @default(false)
@@ -162,7 +169,7 @@ model DeliveryMethod {
 }
 
 model Order {
-  id Int @id @default(autoincrement())
+  id String @id @default(cuid())
 
   customer   Customer @relation(fields: [customerId], references: [id])
   customerId Int
@@ -182,6 +189,8 @@ model Order {
 
   status OrderStatus
 
+  createdAt DateTime @default(now())
+
   @@map("order")
 }
 
@@ -194,8 +203,8 @@ model OrderItem {
 
   quantity Int
 
-  order   Order @relation(fields: [orderId], references: [id])
-  orderId Int
+  order   Order  @relation(fields: [orderId], references: [id])
+  orderId String
 
   @@map("order_item")
 }

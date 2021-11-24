@@ -90,7 +90,7 @@ export const loginUser = async (args: MutationArgs['loginUser'], ctx: Context) =
 
 export const updateUser = async (args: MutationArgs['updateUser'], ctx: Context) => {
   try {
-    const payload = ctx.user
+    const payload = ctx.getUser()
     const user = await ctx.prisma.user.update({
       where: {
         email: payload.email,
@@ -107,6 +107,7 @@ export const updateUser = async (args: MutationArgs['updateUser'], ctx: Context)
         email: args.data.email || undefined,
         shop: args.data.shop ? {
           update: {
+            description: args.data.shop.description || undefined,
             instagram: args.data.shop.instagram || undefined,
             facebook: args.data.shop.facebook || undefined,
             tiktok: args.data.shop.tiktok || undefined,
@@ -114,6 +115,7 @@ export const updateUser = async (args: MutationArgs['updateUser'], ctx: Context)
             name: args.data.shop.name || undefined,
             slug: args.data.shop.slug || undefined,
             paymentMethods: args.data.shop.paymentMethods ? [...new Set(args.data.shop.paymentMethods)] : undefined,
+            paymentMethodsMetadata: args.data.shop.paymentMethodsMetadata || undefined,
             hasWhatsapp: args.data.shop.hasWhatsapp ?? undefined,
             logo: args.data.shop.logo ? {
               upsert: {

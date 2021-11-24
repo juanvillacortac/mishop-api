@@ -1,5 +1,5 @@
 import { pageObjectType } from '@/lib/utils'
-import { inputObjectType, intArg, nonNull, objectType, queryField, stringArg, mutationField, list } from 'nexus'
+import { inputObjectType, intArg, nonNull, objectType, queryField, stringArg, mutationField, list, enumType, arg } from 'nexus'
 import { ImageAttachment, ImageAttachmentInput } from './common'
 import { ShopAccount } from './shop'
 import { DeliveryMethod, Product as DProduct, ShopAccount as DShopAccount, ImageAttachment as DImageAttachment } from '@prisma/client'
@@ -14,6 +14,7 @@ export const Product = objectType({
     t.nonNull.boolean('hasVariants')
     t.list.nonNull.jsonObject('variants')
     t.nonNull.float('price')
+    t.nonNull.int('priority')
     t.nonNull.float('promotionalPrice')
     t.nonNull.int('stock')
     t.nonNull.int('min')
@@ -34,7 +35,13 @@ export const ProductInput = inputObjectType({
     t.float('promotionalPrice')
     t.int('stock')
     t.int('min')
+    t.int('priority')
   },
+})
+
+export const OrderEnum = enumType({
+  name: 'OrderEnum',
+  members: ['asc', 'desc']
 })
 
 export const GetProductsQuery = queryField('getProducts', {
@@ -44,6 +51,10 @@ export const GetProductsQuery = queryField('getProducts', {
     take: intArg({ description: 'Take +N products from the current position of cursor', default: 10 }),
     shopId: intArg({ description: 'Shop id' }),
     shopSlug: stringArg({ description: 'Shop slug' }),
+    order: arg({
+      type: OrderEnum,
+      default: 'desc',
+    })
     // active: booleanArg({ description: 'If is not defined, active and inactive are listed' }),
   },
   resolve: async (_parent, args, ctx) => {
@@ -64,6 +75,10 @@ export const GetProductsQuery = queryField('getProducts', {
         skip: args.skip,
         take: args.take,
         where,
+        orderBy: [
+          { priority: args.order, },
+          { createdAt: args.order, },
+        ],
         include: {
           shop: {
             include: {
@@ -103,10 +118,10 @@ export const GetProductQuery = queryField('getProduct', {
 type ProductComplete = DProduct & {
   images: DImageAttachment[]
   shop: DShopAccount & {
-      logo: DImageAttachment
-      deliveryMethods: DeliveryMethod[]
+    logo: DImageAttachment
+    deliveryMethods: DeliveryMethod[]
   };
-} 
+}
 
 export const UpsertProductsMutation = mutationField('upsertProducts', {
   type: list(Product),
@@ -139,10 +154,11 @@ export const UpsertProductsMutation = mutationField('upsertProducts', {
           name: p.name || '',
           price: p.price || 0,
           promotionalPrice: p.promotionalPrice || 0,
-          hasVariants: Boolean(p.variants.length),
+          hasVariants: Boolean(p.variants?.length),
           min: p.min || 0,
           stock: p.stock || 0,
           variants: p.variants || [],
+          priority: p.priority ?? undefined,
           images: p.images?.length ? {
             createMany: {
               data: p.images.map(i => ({
