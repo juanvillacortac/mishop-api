@@ -15,7 +15,7 @@ export const Product = objectType({
     t.list.nonNull.jsonObject('variants')
     t.nonNull.float('price')
     t.nonNull.int('priority')
-    t.nonNull.float('promotionalPrice')
+    t.float('promotionalPrice')
     t.nonNull.int('stock')
     t.nonNull.int('min')
     t.nonNull.date('createdAt')
@@ -153,7 +153,7 @@ export const UpsertProductsMutation = mutationField('upsertProducts', {
           shopId: shop.id,
           name: p.name || '',
           price: p.price || 0,
-          promotionalPrice: p.promotionalPrice || 0,
+          promotionalPrice: p.promotionalPrice,
           hasVariants: Boolean(p.variants?.length),
           min: p.min || 0,
           stock: p.stock || 0,

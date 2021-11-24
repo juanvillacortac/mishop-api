@@ -111,7 +111,7 @@ model Product {
   variants    Json[]
 
   price            Float
-  promotionalPrice Float
+  promotionalPrice Float?
 
   stock Int
   min   Int
