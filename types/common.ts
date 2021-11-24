@@ -21,5 +21,5 @@ export const ImageAttachmentInput = inputObjectType({
 
 export const PaymentMethodEnum = enumType({
   name: 'PaymentMethodEnum',
-  members: ['FIAT', 'ZELLE', 'PAGOMOVIL', 'PAYPAL']
+  members: ['CASH', 'ZELLE', 'PAGOMOVIL', 'PAYPAL', 'POS']
 })

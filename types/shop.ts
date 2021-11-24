@@ -1,5 +1,5 @@
 import { updateUser } from '@/resolvers/user'
-import { arg, inputObjectType, intArg, mutationField, nonNull, objectType, queryField, stringArg } from 'nexus'
+import { arg, inputObjectType, intArg, mutationField, nonNull, objectType, queryField, queryType, stringArg } from 'nexus'
 import { ImageAttachment, ImageAttachmentInput, PaymentMethodEnum } from './common'
 
 export const ShopAccount = objectType({
@@ -43,6 +43,33 @@ export const ShopUpdateInput = inputObjectType({
     t.jsonObject('paymentMethodsMetadata')
 
     t.field('logo', { type: ImageAttachmentInput })
+  },
+})
+
+export const ShopSlugOutput = objectType({
+  name: 'ShopSlugOutput',
+  definition(t) {
+    t.boolean('exists')
+  },
+})
+
+export const checkShopSlugQuery = queryField('checkShopSlug', {
+  type: ShopSlugOutput,
+  args: {
+    slug: nonNull(stringArg()),
+  },
+  resolve: async (_parent, args, ctx) => {
+    const shop = await ctx.prisma.shopAccount.findUnique({
+      select: {
+        slug: true,
+      },
+      where: {
+        slug: args.slug,
+      }
+    })
+    return {
+      exists: Boolean(shop)
+    }
   },
 })
 
