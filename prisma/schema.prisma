@@ -155,16 +155,16 @@ model Customer {
 }
 
 model DeliveryMethod {
-  id                    Int                @id @default(autoincrement())
-  shop                  ShopAccount        @relation(fields: [shopId], references: [id], onDelete: Cascade, name: "delivery_methods")
+  id                    Int                 @id @default(autoincrement())
+  shop                  ShopAccount         @relation(fields: [shopId], references: [id], onDelete: Cascade, name: "delivery_methods")
   shopId                Int
   name                  String
   description           String?
   price                 Float
-  active                Boolean            @default(true)
-  admitCash             Boolean            @default(false)
-  requestDirection      Boolean            @default(false)
-  specificPaymentMethod PaymentMethodType?
+  active                Boolean             @default(true)
+  admitCash             Boolean             @default(false)
+  requestDirection      Boolean             @default(false)
+  specificPaymentMethods PaymentMethodType[]
   orders                Order[]
 
   @@map("delivery_method")

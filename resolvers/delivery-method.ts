@@ -44,6 +44,7 @@ export const upsertDeliveryMethods = async (args: MutationArgs['upsertDeliveryMe
       data: {
         name: d.name || '',
         description: d.description || undefined,
+        specificPaymentMethods: args.data.specificPaymentMethods ? [...new Set(args.data.specificPaymentMethods)] : [],
         price: d.price || 0,
         shopId: shop.id,
       }
@@ -64,7 +65,10 @@ export const upsertDeliveryMethods = async (args: MutationArgs['upsertDeliveryMe
             where: {
               id: d.id,
             },
-            data: { ...d },
+            data: {
+              ...d,
+              specificPaymentMethods: args.data.specificPaymentMethods ? [...new Set(args.data.specificPaymentMethods)] : undefined,
+            },
           }
         }
       }

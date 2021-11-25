@@ -11,7 +11,7 @@ export const DeliveryMethod = objectType({
     t.nonNull.float('price')
     t.nonNull.boolean('admitCash')
     t.nonNull.boolean('requestDirection')
-    t.field('specificPaymentMethod', { type: PaymentMethodEnum })
+    t.nonNull.list.field('specificPaymentMethods', { type: PaymentMethodEnum })
     t.nonNull.boolean('active')
   },
 })
@@ -25,7 +25,7 @@ export const DeliveryMethodInput = inputObjectType({
     t.float('price')
     t.boolean('admitCash')
     t.boolean('requestDirection')
-    t.field('specificPaymentMethod', { type: PaymentMethodEnum })
+    t.list.field('specificPaymentMethods', { type: PaymentMethodEnum })
     t.boolean('active')
   },
 })
