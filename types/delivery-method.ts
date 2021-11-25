@@ -1,5 +1,6 @@
 import { getDeliveryMethod, getDeliveryMethods, upsertDeliveryMethods } from '@/resolvers/delivery-method'
 import { booleanArg, inputObjectType, intArg, list, mutationField, nonNull, objectType, queryField, stringArg } from 'nexus'
+import { PaymentMethodEnum } from './common'
 
 export const DeliveryMethod = objectType({
   name: 'DeliveryMethod',
@@ -10,6 +11,7 @@ export const DeliveryMethod = objectType({
     t.nonNull.float('price')
     t.nonNull.boolean('admitCash')
     t.nonNull.boolean('requestDirection')
+    t.field('specificPaymentMethod', { type: PaymentMethodEnum })
     t.nonNull.boolean('active')
   },
 })
@@ -23,6 +25,7 @@ export const DeliveryMethodInput = inputObjectType({
     t.float('price')
     t.boolean('admitCash')
     t.boolean('requestDirection')
+    t.field('specificPaymentMethod', { type: PaymentMethodEnum })
     t.boolean('active')
   },
 })
