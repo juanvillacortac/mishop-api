@@ -1,3 +1,4 @@
+import { PaymentMethods } from '@/lib/utils'
 import { enumType, inputObjectType, objectType } from 'nexus'
 
 export const ImageAttachment = objectType({
@@ -21,5 +22,5 @@ export const ImageAttachmentInput = inputObjectType({
 
 export const PaymentMethodEnum = enumType({
   name: 'PaymentMethodEnum',
-  members: ['CASH', 'ZELLE', 'PAGOMOVIL', 'PAYPAL', 'POS']
+  members: Object.keys(PaymentMethods).filter(pm => pm !== 'null'),
 })

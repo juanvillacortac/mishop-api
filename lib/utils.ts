@@ -3,6 +3,14 @@ import { AllNexusOutputTypeDefs, GetGen, NexusMetaType } from 'nexus/dist/core'
 import { objectType } from 'nexus/dist/core'
 import { Context } from './context'
 
+export enum PaymentMethods {
+  CASH = null,
+  ZELLE = null,
+  PAGOMOVIL = null,
+  PAYPAL = null,
+  POS = null,
+}
+
 export const pageObjectType = (name: string, type: GetGen<'allOutputTypes', string> | AllNexusOutputTypeDefs | NexusMetaType) => objectType({
   name,
   definition(t) {

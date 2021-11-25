@@ -3,6 +3,7 @@ import { compare, hash } from 'bcrypt'
 import { sign } from 'jsonwebtoken'
 import { Context } from '@/lib/context'
 import { NexusGenArgTypes } from '@/lib/generated/nexus'
+import { PaymentMethods } from '@/lib/utils'
 
 type MutationArgs = NexusGenArgTypes['Mutation']
 
@@ -23,6 +24,7 @@ export const registerUser = async (args: MutationArgs['registerUser'], ctx: Cont
             slug: args.data.shopSlug,
             instagram: args.data.instagram,
             name: args.data.shopName,
+            paymentMethodsMetadata: Object.fromEntries(Object.entries(PaymentMethods).filter(([key]) => key !== 'null')),
             phoneNumber: args.data.phoneNumber,
           }
         },

@@ -56,7 +56,7 @@ model ShopAccount {
 
   paymentMethods         PaymentMethodType[]
   deliveryMethods        DeliveryMethod[]    @relation("delivery_methods")
-  paymentMethodsMetadata Json                @default("{ \"PAYPAL\": null, \"PAGOMOVIL\": null, \"ZELLE\": null, \"FIAT\": null }")
+  paymentMethodsMetadata Json                @default("{ \"PAYPAL\": null, \"PAGOMOVIL\": null, \"ZELLE\": null, \"CASH\": null, \"POS\": null }")
 
   logo   ImageAttachment? @relation(fields: [logoId], references: [id], onDelete: Cascade, name: "shop_logo")
   logoId Int?             @unique
