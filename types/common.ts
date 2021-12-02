@@ -24,3 +24,8 @@ export const PaymentMethodEnum = enumType({
   name: 'PaymentMethodEnum',
   members: Object.keys(PaymentMethods).filter(pm => pm !== 'null'),
 })
+
+export const OrderEnum = enumType({
+  name: 'OrderEnum',
+  members: ['asc', 'desc']
+})

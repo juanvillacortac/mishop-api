@@ -40,13 +40,26 @@ model Account {
   @@map("account")
 }
 
+model ShopAccountStatusLog {
+  id    String @id @default(cuid())
+  status String
+  datetime DateTime @default(now())
+  
+  shop   ShopAccount @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  shopId Int
+}
+
 model ShopAccount {
   id Int @id @default(autoincrement())
 
   name String?
   slug String? @unique
 
+  statusLogs ShopAccountStatusLog[]
+
   description String?
+
+  status String @default("new")
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @unique

@@ -37,6 +37,12 @@ export const registerUser = async (args: MutationArgs['registerUser'], ctx: Cont
         },
       }
     })
+    await ctx.prisma.shopAccountStatusLog.create({
+      data: {
+        status: user.shop.status,
+        shopId: user.shop.id,
+      }
+    })
     return {
       token: sign({
         scope: 'user',
@@ -142,6 +148,34 @@ export const updateUser = async (args: MutationArgs['updateUser'], ctx: Context)
         } : undefined
       }
     })
+    if (args.data.shop?.status && args.data.shop.status !== user.shop.status) {
+      const user = await ctx.prisma.user.update({
+        where: {
+          email: payload.email,
+        },
+        include: {
+          shop: {
+            include: {
+              logo: true
+            }
+          }
+        },
+        data: {
+          shop: {
+            update: {
+              status: args.data.shop.status
+            }
+          },
+        }
+      })
+      await ctx.prisma.shopAccountStatusLog.create({
+        data: {
+          status: args.data.shop.status,
+          shopId: user.shop.id,
+        }
+      })
+      return user
+    }
     return user
   } catch (err) {
     throw new Error(err.message)

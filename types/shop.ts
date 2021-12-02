@@ -1,6 +1,6 @@
 import { updateUser } from '@/resolvers/user'
-import { arg, inputObjectType, intArg, mutationField, nonNull, objectType, queryField, queryType, stringArg } from 'nexus'
-import { ImageAttachment, ImageAttachmentInput, PaymentMethodEnum } from './common'
+import { arg, inputObjectType, intArg, list, mutationField, nonNull, objectType, queryField, queryType, stringArg } from 'nexus'
+import { ImageAttachment, ImageAttachmentInput, OrderEnum, PaymentMethodEnum } from './common'
 
 export const ShopAccount = objectType({
   name: 'ShopAccount',
@@ -9,6 +9,8 @@ export const ShopAccount = objectType({
     t.nonEmptyString('name')
     t.nonEmptyString('slug')
     t.string('description')
+
+    t.string('status')
 
     t.nonEmptyString('instagram')
     t.nonEmptyString('tiktok')
@@ -24,12 +26,23 @@ export const ShopAccount = objectType({
   },
 })
 
+export const ShopStatusLog = objectType({
+  name: 'ShopStatusLog',
+  definition(t) {
+    t.string('id')
+    t.string('status')
+    t.date('datetime')
+  },
+})
+
 export const ShopUpdateInput = inputObjectType({
   name: 'ShopUpdateInput',
   definition(t) {
     t.nonEmptyString('name')
 
     t.string('description')
+
+    t.string('status')
 
     t.nonEmptyString('instagram')
     t.nonEmptyString('tiktok')
@@ -98,6 +111,24 @@ export const ShopQuery = queryField('getShop', {
       }
     })
   }
+})
+
+export const GetShopStatusLogs = queryField('getShopStatusLogs', {
+  type: list(ShopStatusLog),
+  args: {
+    order: arg({
+      type: OrderEnum,
+      default: 'desc',
+    })
+  },
+  resolve: (_parent, args, ctx) => ctx.prisma.shopAccountStatusLog.findMany({
+    where: {
+      shopId: ctx.getUser().shop.id,
+    },
+    orderBy: [
+      { datetime: args.order, },
+    ],
+  }),
 })
 
 export const ShopUpdateMutation = mutationField('updateShop', {

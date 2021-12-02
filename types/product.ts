@@ -1,6 +1,6 @@
 import { pageObjectType } from '@/lib/utils'
 import { inputObjectType, intArg, nonNull, objectType, queryField, stringArg, mutationField, list, enumType, arg } from 'nexus'
-import { ImageAttachment, ImageAttachmentInput } from './common'
+import { ImageAttachment, ImageAttachmentInput, OrderEnum } from './common'
 import { ShopAccount } from './shop'
 import { DeliveryMethod, Product as DProduct, ShopAccount as DShopAccount, ImageAttachment as DImageAttachment } from '@prisma/client'
 
@@ -37,11 +37,6 @@ export const ProductInput = inputObjectType({
     t.int('min')
     t.int('priority')
   },
-})
-
-export const OrderEnum = enumType({
-  name: 'OrderEnum',
-  members: ['asc', 'desc']
 })
 
 export const GetProductsQuery = queryField('getProducts', {
