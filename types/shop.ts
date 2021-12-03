@@ -1,11 +1,11 @@
 import { updateUser } from '@/resolvers/user'
-import { arg, inputObjectType, intArg, list, mutationField, nonNull, objectType, queryField, queryType, stringArg } from 'nexus'
+import { arg, inputObjectType, list, mutationField, nonNull, objectType, queryField, queryType, stringArg } from 'nexus'
 import { ImageAttachment, ImageAttachmentInput, OrderEnum, PaymentMethodEnum } from './common'
 
 export const ShopAccount = objectType({
   name: 'ShopAccount',
   definition(t) {
-    t.nonNull.int('id')
+    t.nonNull.string('id')
     t.nonEmptyString('name')
     t.nonEmptyString('slug')
     t.string('description')
@@ -94,7 +94,7 @@ export const ShopFromTokenQuery = queryField('getShopFromToken', {
 export const ShopQuery = queryField('getShop', {
   type: ShopAccount,
   args: {
-    id: intArg(),
+    id: stringArg(),
     slug: stringArg(),
   },
   resolve: (_parent, args, ctx) => {

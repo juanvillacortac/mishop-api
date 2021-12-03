@@ -59,3 +59,38 @@ export const getUserFromJWT = async (ctx: Context) => {
     }
   }
 }
+
+export const getCustomerFromJWT = async (ctx: Context) => {
+  const token = ctx.request?.headers['x-customer'] as string
+  if (token) {
+    const { ok, result } = await new Promise(resolve =>
+      jwt.verify(token, import.meta.env.VITE_JWT_SECRET, (err, result) => {
+        if (err) {
+          resolve({
+            ok: false,
+            result: err
+          })
+        } else {
+          resolve({
+            ok: true,
+            result,
+          })
+        }
+      })
+    )
+    if (ok) {
+      if (result) {
+        return await ctx.prisma.customer.findUnique({
+          where: {
+            id: String(result),
+          },
+          include: {
+            shop: true
+          }
+        })
+      }
+    } else {
+      throw new Error(result)
+    }
+  }
+}

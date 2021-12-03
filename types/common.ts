@@ -4,7 +4,7 @@ import { enumType, inputObjectType, objectType } from 'nexus'
 export const ImageAttachment = objectType({
   name: 'ImageAttachment',
   definition(t) {
-    t.nonNull.int('id')
+    t.nonNull.string('id')
     t.nonNull.string('original')
     t.nonNull.string('normal')
     t.nonNull.string('thumbnail')

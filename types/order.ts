@@ -1,13 +1,17 @@
 import { pageObjectType } from '@/lib/utils'
-import { inputObjectType, intArg, nonNull, objectType, queryField, stringArg, mutationField, list } from 'nexus'
-import { ImageAttachmentInput, PaymentMethodEnum } from './common'
-import { ShopAccount } from './shop'
-import { DeliveryMethod, Product as DProduct, ShopAccount as DShopAccount, ImageAttachment as DImageAttachment, Order as DOrder } from '@prisma/client'
+import { arg, inputObjectType, intArg, list, mutationField, nonNull, objectType, queryField, stringArg } from 'nexus'
+import { OrderEnum, PaymentMethodEnum } from './common'
+import { Product } from './product'
+import { Customer } from './customer'
+import { DeliveryMethod } from './delivery-method'
 
 export const OrderItem = objectType({
   name: 'OrderItem',
   definition(t) {
-    t.nonNull.int('id')
+    t.nonNull.string('id')
+    t.field('product', { type: Product })
+    t.int('quantity')
+    t.int('price')
   }
 })
 
@@ -15,203 +19,282 @@ export const Order = objectType({
   name: 'Order',
   definition(t) {
     t.nonNull.string('id')
-    t.nonNull.field('shop', { type: ShopAccount })
-    t.field('paymentMethod', { type: PaymentMethodEnum })
-    t.nonNull.boolean('hasVariants')
-    t.list.nonNull.jsonObject('variants')
-    t.nonNull.float('price')
-    t.nonNull.float('promotionalPrice')
-    t.nonNull.int('stock')
-    t.nonNull.int('min')
+    t.nonNull.field('customer', { type: Customer })
+    t.nonNull.list.field('products', { type: OrderItem })
+    t.nonNull.field('paymentMethod', { type: PaymentMethodEnum })
+    t.nonNull.jsonObject('paymentData')
+    t.nonNull.field('deliveryMethod', { type: DeliveryMethod })
+    t.nonNull.jsonObject('deliveryMethodData')
+    t.nonNull.string('status')
+    t.nonNull.float('total')
     t.nonNull.date('createdAt')
   }
 })
 
-export const ProductPage = pageObjectType('ProductPage', Order)
+export const OrderPage = pageObjectType('OrderPage', Order)
 
-export const ProductInput = inputObjectType({
-  name: 'ProductInput',
+export const OrderItemInput = inputObjectType({
+  name: 'OrderItemInput',
   definition(t) {
-    t.int('id')
-    t.nonEmptyString('name')
-    t.list.field('images', { type: ImageAttachmentInput })
-    t.list.jsonObject('variants')
-    t.float('price')
-    t.float('promotionalPrice')
-    t.int('stock')
-    t.int('min')
+    t.nonNull.string('id')
+    t.int('quantity')
+  }
+})
+
+export const OrderInput = inputObjectType({
+  name: 'OrderInput',
+  definition(t) {
+    t.nonNull.list.field('products', { type: OrderItemInput })
+    t.nonNull.field('paymentMethod', { type: PaymentMethodEnum })
+    t.jsonObject('paymentData')
+    t.nonNull.string('deliveryMethodId')
+    t.jsonObject('deliveryMethodData')
+    t.string('status')
   },
 })
 
-export const GetProductsQuery = queryField('getProducts', {
-  type: ProductPage,
+export const OrderStatusLog = objectType({
+  name: 'OrderStatusLog',
+  definition(t) {
+    t.string('id')
+    t.string('status')
+    t.date('datetime')
+  },
+})
+
+export const GetOrderStatusLogs = queryField('getOrderStatusLogs', {
+  type: list(OrderStatusLog),
+  args: {
+    id: nonNull(stringArg()),
+    order: arg({
+      type: OrderEnum,
+      default: 'desc',
+    })
+  },
+  resolve: (_parent, args, ctx) => ctx.prisma.orderStatusLog.findMany({
+    where: {
+      orderId: args.id,
+    },
+    orderBy: [
+      { datetime: args.order, },
+    ],
+  }),
+})
+
+export const UpdateOrderInput = inputObjectType({
+  name: 'UpdateOrderInput',
+  definition(t) {
+    t.nonNull.string('id')
+    t.nonNull.string('status')
+  },
+})
+
+export const GetOrderQuery = queryField('getOrder', {
+  type: Order,
+  args: {
+    id: nonNull(stringArg()),
+  },
+  resolve: async (_parent, args, ctx) => {
+    return ctx.prisma.order.findUnique({
+      where: {
+        id: args.id,
+      },
+      include: {
+        customer: true,
+        products: true,
+        deliveryMethod: true,
+      }
+    })
+  }
+})
+
+export const GetOrdersQuery = queryField('getOrders', {
+  type: OrderPage,
   args: {
     skip: intArg({ description: 'Skip the first N number of products', default: 0 }),
     take: intArg({ description: 'Take +N products from the current position of cursor', default: 10 }),
-    shopId: intArg({ description: 'Shop id' }),
+    status: stringArg({ description: 'Filter orders by status' }),
+    shopId: stringArg({ description: 'Shop id' }),
     shopSlug: stringArg({ description: 'Shop slug' }),
+    order: arg({
+      type: OrderEnum,
+      default: 'desc',
+    })
     // active: booleanArg({ description: 'If is not defined, active and inactive are listed' }),
   },
   resolve: async (_parent, args, ctx) => {
     let shopId = args.shopId
-    if (!args.shopSlug && !shopId) {
+    if (!args.shopSlug && !shopId && !ctx.customer) {
       shopId = ctx.getUser().shop?.id
     }
-    ctx.prisma.orderItem.create({
-      data: {
 
-      }
-    })
     const where = {
       shopId,
-      shop: {
+      customer: ctx.customer ? {
+        id: ctx.customer.id
+      } : undefined,
+      shop: (shopId || args.shopSlug) && !ctx.customer ? {
         id: shopId ?? undefined,
         slug: args.shopSlug ?? undefined,
-      }
+      } : undefined,
+      status: args.status ?? undefined,
     }
-    const [total, products] = await ctx.prisma.$transaction([
-      ctx.prisma.product.count({ where }),
-      ctx.prisma.product.findMany({
+
+    const [total, orders] = await ctx.prisma.$transaction([
+      ctx.prisma.order.count({ where }),
+      ctx.prisma.order.findMany({
         skip: args.skip,
         take: args.take,
         where,
+        orderBy: { createdAt: args.order, },
         include: {
-          shop: {
+          customer: true,
+          products: {
             include: {
-              deliveryMethods: true,
-              products: true,
+              product: {
+                include: {
+                  shop: true,
+                  images: true,
+                  categories: true,
+                }
+              },
             }
-          }
+          },
+          deliveryMethod: true,
         }
       }),
     ])
     return {
       total,
-      items: products,
+      items: orders,
     }
   }
 })
 
-export const GetProductQuery = queryField('getProduct', {
+export const CreateOrderMutation = mutationField('createOrder', {
   type: Order,
   args: {
-    id: nonNull(intArg()),
-  },
-  resolve: (_parent, args, ctx) => ctx.prisma.product.findUnique({
-    where: { id: args.id },
-    include: {
-      images: true,
-      shop: {
-        include: {
-          deliveryMethods: true,
-          logo: true,
-        }
-      }
-    }
-  })
-})
-
-type ProductComplete = DProduct & {
-  images: DImageAttachment[]
-  shop: DShopAccount & {
-      logo: DImageAttachment
-      deliveryMethods: DeliveryMethod[]
-  };
-} 
-
-export const UpsertProductsMutation = mutationField('upsertProducts', {
-  type: list(Order),
-  args: {
-    data: nonNull(list(ProductInput)),
+    data: OrderInput
   },
   resolve: async (_parent, args, ctx) => {
-    const shop = ctx.getUser().shop
-
-    const data = args.data.filter(d => Object.keys(d).length)
-
-    const toCreate = data.filter(d => d.id === null || typeof d.id === 'undefined')
-    const toUpdate = data.filter(d => d.id)
-
-    let [created, updated]: [ProductComplete[], ProductComplete[]] = [[], []]
-
-    if (toCreate?.length) {
-      created = await ctx.prisma.$transaction(toCreate.map(p => ctx.prisma.product.create({
-        include: {
-          images: true,
-          shop: {
-            include: {
-              deliveryMethods: true,
-              logo: true,
-            }
+    const products = await Promise.all(args.data.products.map(async p => ({
+      ...p,
+      product: await ctx.prisma.product.findUnique({
+        where: { id: p.id }
+      })
+    })))
+    const delivery = await ctx.prisma.deliveryMethod.findUnique({
+      where: { id: args.data.deliveryMethodId }
+    })
+    const total = products
+      .map(p => (p.product.promotionalPrice ?? p.product.price) * p.quantity)
+      .reduce((a, b) => a + b, 0) + delivery.price
+    return ctx.prisma.order.create({
+      data: {
+        paymentMethod: args.data.paymentMethod,
+        paymentData: args.data.paymentData,
+        total,
+        customer: {
+          connect: { id: ctx.getCustomer().id },
+        },
+        shop: {
+          connect: { id: ctx.getCustomer().shopId },
+        },
+        status: args.data.status,
+        statusLogs: {
+          create: {
+            status: args.data.status ?? 'process'
           }
         },
-        data: {
-          shopId: shop.id,
-          name: p.name || '',
-          price: p.price || 0,
-          promotionalPrice: p.promotionalPrice || 0,
-          hasVariants: Boolean(p.variants.length),
-          min: p.min || 0,
-          stock: p.stock || 0,
-          variants: p.variants || [],
-          images: p.images?.length ? {
-            createMany: {
-              data: p.images.map(i => ({
-                original: i.original || '',
-                normal: i.normal || '',
-                thumbnail: i.thumbnail || '',
-              }))
-            }
-          } : undefined
-        }
-      })))
-    }
-
-    if (toUpdate?.length) {
-      const [model] = await ctx.prisma.$transaction(toUpdate.map(p => ctx.prisma.shopAccount.update({
-        where: {
-          id: shop.id,
+        deliveryMethodData: args.data.deliveryMethodData,
+        deliveryMethod: {
+          connect: { id: args.data.deliveryMethodId },
         },
-        select: {
-          products: {
-            include: {
-              images: true,
-              shop: {
-                include: {
-                  deliveryMethods: true,
-                  logo: true,
-                }
+        products: {
+          createMany: {
+            data: products.map(p => ({
+              productId: p.id,
+              price: p.product.promotionalPrice ?? p.product.price,
+              quantity: p.quantity,
+            }))
+          }
+        },
+      },
+      include: {
+        customer: true,
+        products: {
+          include: {
+            product: {
+              include: {
+                shop: true,
+                images: true,
+                categories: true,
               }
-            }
+            },
           }
         },
-        data: {
-          products: {
-            update: {
-              where: {
-                id: p.id,
-              },
-              data: {
-                ...p,
-                images: p.images ? {
-                  deleteMany: {},
-                  createMany: {
-                    data: p.images.map(i => ({
-                      original: i.original || '',
-                      normal: i.normal || '',
-                      thumbnail: i.thumbnail || '',
-                    }))
-                  }
-                } : undefined
-              },
-            }
-          }
-        }
-      })))
-      const ids = toUpdate.map(d => d.id)
-      updated = model.products.filter(d => ids.includes(d.id))
-    }
+        deliveryMethod: true,
+      }
+    })
+  }
+})
 
-    return [...created, ...updated]
+export const UpdateOrderMutation = mutationField('updateOrder', {
+  type: Order,
+  args: {
+    data: UpdateOrderInput
+  },
+  resolve: async (_parent, args, ctx) => {
+    let shopId = ctx.customer ? ctx.getCustomer().shopId : ctx.getUser().shop.id
+    const where = {
+      id: args.data.id,
+      customer: ctx.customer ? {
+        id: ctx.customer.id
+      } : undefined,
+      shop: {
+        id: shopId,
+      },
+    }
+    const existent = await ctx.prisma.order.findFirst({
+      where,
+      select: {
+        status: true,
+      }
+    })
+    if (!existent) {
+      throw new Error('Order not found')
+    }
+    const product = await ctx.prisma.order.update({
+      where: {
+        id: args.data.id,
+      },
+      data: {
+        status: args.data.status,
+      },
+      include: {
+        customer: true,
+        products: {
+          include: {
+            product: {
+              include: {
+                shop: true,
+                images: true,
+                categories: true,
+              }
+            },
+          }
+        },
+        deliveryMethod: true,
+      }
+    })
+    if (existent.status !== args.data.status) {
+      await ctx.prisma.orderStatusLog.create({
+        data: {
+          status: args.data.status,
+          orderId: args.data.id,
+        }
+      })
+    }
+    return product
   }
 })

@@ -18,5 +18,7 @@ export const JSONObject = asNexusMethod(JSONObjectResolver, 'jsonObject')
 export * from './common'
 export * from './shop'
 export * from './delivery-method'
+export * from './customer'
 export * from './product'
 export * from './user'
+export * from './order'

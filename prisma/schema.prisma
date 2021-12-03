@@ -41,16 +41,16 @@ model Account {
 }
 
 model ShopAccountStatusLog {
-  id    String @id @default(cuid())
-  status String
+  id       String   @id @default(cuid())
+  status   String
   datetime DateTime @default(now())
-  
+
   shop   ShopAccount @relation(fields: [shopId], references: [id], onDelete: Cascade)
-  shopId Int
+  shopId String
 }
 
 model ShopAccount {
-  id Int @id @default(autoincrement())
+  id String @id @default(cuid())
 
   name String?
   slug String? @unique
@@ -72,13 +72,15 @@ model ShopAccount {
   paymentMethodsMetadata Json                @default("{ \"PAYPAL\": null, \"PAGOMOVIL\": null, \"ZELLE\": null, \"CASH\": null, \"POS\": null }")
 
   logo   ImageAttachment? @relation(fields: [logoId], references: [id], onDelete: Cascade, name: "shop_logo")
-  logoId Int?             @unique
+  logoId String?          @unique
 
   instagram   String? @unique
   tiktok      String?
   facebook    String?
   hasWhatsapp Boolean @default(false)
   phoneNumber String?
+
+  customers Customer[]
 
   @@map("shop_account")
 }
@@ -95,7 +97,7 @@ model Category {
 }
 
 model ImageAttachment {
-  id Int @id @default(autoincrement())
+  id String @id @default(cuid())
 
   original  String
   normal    String
@@ -104,16 +106,16 @@ model ImageAttachment {
   shop ShopAccount? @relation("shop_logo")
 
   product   Product? @relation(references: [id], fields: [productId], onDelete: Cascade, name: "product_image")
-  productId Int
+  productId String
 
   @@map("image_attachment")
 }
 
 model Product {
-  id Int @id @default(autoincrement())
+  id String @id @default(cuid())
 
   shop   ShopAccount @relation(fields: [shopId], references: [id], onDelete: Cascade)
-  shopId Int
+  shopId String
 
   images ImageAttachment[] @relation("product_image")
 
@@ -154,55 +156,68 @@ enum OrderStatus {
 }
 
 model Customer {
-  id Int @id @default(autoincrement())
+  id String @id @default(cuid())
 
   name        String
-  lastName    String
-  instagram   String @unique
-  email       String @unique
-  phoneNumber String
+  lastName    String?
+  instagram   String?
+  phoneNumber String?
+  email       String
 
+  shop   ShopAccount @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  shopId String
   orders Order[]
 
   @@map("customer")
 }
 
 model DeliveryMethod {
-  id                    Int                 @id @default(autoincrement())
-  shop                  ShopAccount         @relation(fields: [shopId], references: [id], onDelete: Cascade, name: "delivery_methods")
-  shopId                Int
-  name                  String
-  description           String?
-  price                 Float
-  active                Boolean             @default(true)
-  admitCash             Boolean             @default(false)
-  requestDirection      Boolean             @default(false)
+  id                     String              @id @default(cuid())
+  shop                   ShopAccount         @relation(fields: [shopId], references: [id], onDelete: Cascade, name: "delivery_methods")
+  shopId                 String
+  name                   String
+  description            String?
+  price                  Float
+  active                 Boolean             @default(true)
+  admitCash              Boolean             @default(false)
+  requestDirection       Boolean             @default(false)
   specificPaymentMethods PaymentMethodType[]
-  orders                Order[]
+  orders                 Order[]
 
   @@map("delivery_method")
+}
+
+model OrderStatusLog {
+  id       String   @id @default(cuid())
+  status   String
+  datetime DateTime @default(now())
+
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId String
 }
 
 model Order {
   id String @id @default(cuid())
 
   customer   Customer @relation(fields: [customerId], references: [id])
-  customerId Int
+  customerId String
 
   shop   ShopAccount @relation(fields: [shopId], references: [id], onDelete: Cascade, name: "products_orders")
-  shopId Int
+  shopId String
 
-  deliveryMethod   DeliveryMethod @relation(fields: [deliveryMethodId], references: [id])
-  deliveryMethodId Int
+  deliveryMethod     DeliveryMethod @relation(fields: [deliveryMethodId], references: [id])
+  deliveryMethodId   String
+  deliveryMethodData Json @default("{}")
 
   paymentMethod PaymentMethodType
-  paymentData   Json
+  paymentData   Json @default("{}")
 
   total Float
 
   products OrderItem[]
 
-  status OrderStatus
+  status     String           @default("process")
+  statusLogs OrderStatusLog[]
 
   createdAt DateTime @default(now())
 
@@ -210,11 +225,11 @@ model Order {
 }
 
 model OrderItem {
-  id    Int   @id @default(autoincrement())
+  id    String @id @default(cuid())
   price Float
 
   product   Product @relation(fields: [productId], references: [id])
-  productId Int
+  productId String
 
   quantity Int
 

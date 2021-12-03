@@ -5,7 +5,7 @@ import { PaymentMethodEnum } from './common'
 export const DeliveryMethod = objectType({
   name: 'DeliveryMethod',
   definition(t) {
-    t.nonNull.int('id')
+    t.nonNull.string('id')
     t.nonNull.nonEmptyString('name')
     t.string('description')
     t.nonNull.float('price')
@@ -19,7 +19,7 @@ export const DeliveryMethod = objectType({
 export const DeliveryMethodInput = inputObjectType({
   name: 'DeliveryMethodInput',
   definition(t) {
-    t.int('id')
+    t.string('id')
     t.string('description')
     t.nonEmptyString('name')
     t.float('price')
@@ -33,8 +33,8 @@ export const DeliveryMethodInput = inputObjectType({
 export const DeliveryMethodsQuery = queryField('getDeliveryMethods', {
   type: list(DeliveryMethod),
   args: {
-    id: intArg({ description: 'Delivery method id' }),
-    shopId: intArg({ description: 'Shop id' }),
+    id: stringArg({ description: 'Delivery method id' }),
+    shopId: stringArg({ description: 'Shop id' }),
     shopSlug: stringArg({ description: 'Shop slug' }),
     active: booleanArg({ description: 'If is not defined, active and inactive are listed' }),
   },
@@ -44,7 +44,7 @@ export const DeliveryMethodsQuery = queryField('getDeliveryMethods', {
 export const DeliveryMethodQuery = queryField('getDeliveryMethod', {
   type: DeliveryMethod,
   args: {
-    id: nonNull(intArg()),
+    id: nonNull(stringArg()),
   },
   resolve: async (_parent, args, ctx) => getDeliveryMethod(args, ctx)
 })

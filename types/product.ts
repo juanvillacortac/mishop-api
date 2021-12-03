@@ -7,7 +7,7 @@ import { DeliveryMethod, Product as DProduct, ShopAccount as DShopAccount, Image
 export const Product = objectType({
   name: 'Product',
   definition(t) {
-    t.nonNull.int('id')
+    t.nonNull.string('id')
     t.nonNull.nonEmptyString('name')
     t.nonNull.field('shop', { type: ShopAccount })
     t.list.nonNull.field('images', { type: ImageAttachment })
@@ -27,7 +27,7 @@ export const ProductPage = pageObjectType('ProductPage', Product)
 export const ProductInput = inputObjectType({
   name: 'ProductInput',
   definition(t) {
-    t.int('id')
+    t.string('id')
     t.nonEmptyString('name')
     t.list.field('images', { type: ImageAttachmentInput })
     t.list.jsonObject('variants')
@@ -44,7 +44,7 @@ export const GetProductsQuery = queryField('getProducts', {
   args: {
     skip: intArg({ description: 'Skip the first N number of products', default: 0 }),
     take: intArg({ description: 'Take +N products from the current position of cursor', default: 10 }),
-    shopId: intArg({ description: 'Shop id' }),
+    shopId: stringArg({ description: 'Shop id' }),
     shopSlug: stringArg({ description: 'Shop slug' }),
     order: arg({
       type: OrderEnum,
@@ -94,7 +94,7 @@ export const GetProductsQuery = queryField('getProducts', {
 export const GetProductQuery = queryField('getProduct', {
   type: Product,
   args: {
-    id: nonNull(intArg()),
+    id: nonNull(stringArg()),
   },
   resolve: (_parent, args, ctx) => ctx.prisma.product.findUnique({
     where: { id: args.id },
