@@ -57,6 +57,10 @@ model ShopAccount {
 
   statusLogs ShopAccountStatusLog[]
 
+  category String?
+  country  String?
+  city     String?
+
   description String?
 
   status String @default("new")
@@ -106,7 +110,7 @@ model ImageAttachment {
   shop ShopAccount? @relation("shop_logo")
 
   product   Product? @relation(references: [id], fields: [productId], onDelete: Cascade, name: "product_image")
-  productId String
+  productId String?
 
   @@map("image_attachment")
 }
@@ -207,10 +211,10 @@ model Order {
 
   deliveryMethod     DeliveryMethod @relation(fields: [deliveryMethodId], references: [id])
   deliveryMethodId   String
-  deliveryMethodData Json @default("{}")
+  deliveryMethodData Json           @default("{}")
 
   paymentMethod PaymentMethodType
-  paymentData   Json @default("{}")
+  paymentData   Json              @default("{}")
 
   total Float
 

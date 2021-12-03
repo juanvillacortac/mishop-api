@@ -116,6 +116,9 @@ export const updateUser = async (args: MutationArgs['updateUser'], ctx: Context)
         shop: args.data.shop ? {
           update: {
             description: args.data.shop.description || undefined,
+            country: args.data.shop.country || undefined,
+            city: args.data.shop.city || undefined,
+            category: args.data.shop.category || undefined,
             instagram: args.data.shop.instagram || undefined,
             facebook: args.data.shop.facebook || undefined,
             tiktok: args.data.shop.tiktok || undefined,

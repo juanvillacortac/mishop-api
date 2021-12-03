@@ -10,6 +10,10 @@ export const ShopAccount = objectType({
     t.nonEmptyString('slug')
     t.string('description')
 
+    t.string('category')
+    t.string('city')
+    t.string('country')
+
     t.string('status')
 
     t.nonEmptyString('instagram')
@@ -41,6 +45,9 @@ export const ShopUpdateInput = inputObjectType({
     t.nonEmptyString('name')
 
     t.string('description')
+    t.string('category')
+    t.string('city')
+    t.string('country')
 
     t.string('status')
 
