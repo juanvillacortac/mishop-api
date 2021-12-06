@@ -79,6 +79,7 @@ export const checkShopSlugQuery = queryField('checkShopSlug', {
     slug: nonNull(stringArg()),
   },
   resolve: async (_parent, args, ctx) => {
+    const current = ctx.user.shop.slug
     const shop = await ctx.prisma.shopAccount.findUnique({
       select: {
         slug: true,
@@ -88,7 +89,7 @@ export const checkShopSlugQuery = queryField('checkShopSlug', {
       }
     })
     return {
-      exists: Boolean(shop)
+      exists: current == args.slug ? false : Boolean(shop)
     }
   },
 })
